@@ -1,0 +1,317 @@
+<html>
+
+<head>
+    <title>
+        Web Sql
+    </title>
+    <script>
+        //this native javascript useful in making our SQLite database.
+        var db = openDatabase("mydb", "1.0", "desc", 1000);
+        //my databse name, version, description , time execution;
+        //time to create our table.
+        var PlusOne = '';
+        var idup = "";
+
+        function createTable() {
+            db.transaction(function(tx) {
+                tx.executeSql("CREATE TABLE IF NOT EXISTS tbl01(tbl_id INTEGER PRIMARY KEY AUTOINCREMENT, tbl_name TEXT, tbl_contact TEXT)", [], null, onError);
+            });
+            //db.transaction(function(tx){}); syntax
+            //tx.executeSql(,,,)* has 4 parameters *;
+            //sql statements, value param, success handler, err handler
+        }
+		
+		function createTable() {
+            db.transaction(function(tx) {
+                tx.executeSql("CREATE TABLE IF NOT EXISTS tbl01(tbl_id INTEGER PRIMARY KEY AUTOINCREMENT, tbl_name TEXT, tbl_contact TEXT)", [], null, onError);
+            });
+           
+        }
+        //error Handler
+        function onError(tx, error) {
+            console.log(error);
+        }
+        // inserting data to database
+        function insertToTable(name,contact) {
+            db.transaction(function(tx) {
+              
+
+                      tx.executeSql("INSERT INTO tbl01(tbl_name,tbl_contact) VALUES (?,?)", [name,contact], null, onError); 
+                      getID();
+                      $('#status').html("<div class='alert alert-success animated fadeIn'><i class='glyphicon glyphicon-saved'></i>Successfully Saved</div>")
+                      setTimeout(function(){
+
+                         $('table tbody').prepend('<tr class="animated bounceIn"><td>'+PlusOne+'</td><td>'+name+'</td><td>'+contact+'</td><td> <button id="editbtn" type="button" class="btn btn-success"  ><i class="glyphicon glyphicon-edit"></i></button> <button id="deletebtn" type="button" class="btn btn-danger"> <i class="glyphicon glyphicon-trash" ></i></button> </td></tr>')
+                     }, 200)
+                    setTimeout(function(){
+                       $("input").val('');
+                     }, 500)
+                    setTimeout(function(){
+                       $('#status').html('');
+                     }, 2000)
+                      
+                  
+                })
+ 
+        }
+        //update data from a table or databse
+        function updateToTable(name,contact,id) {
+            
+            db.transaction(function(tx) {
+                tx.executeSql("UPDATE tbl01 SET tbl_name=?,tbl_contact=? WHERE tbl_id=?",[name,contact,id], null, onError);
+                $('#status').html("<div class='alert alert-warning animated fadeInDown'><i class='glyphicon glyphicon-info-sign'></i> ID no."+idup+" Successfully Updated</div>")
+                 $('table tbody').prepend('<tr class="animated tada"><td>'+idup+'</td><td>'+name+'</td><td>'+contact+'</td><td> <button id="editbtn" type="button" class="btn btn-success"  ><i class="glyphicon glyphicon-edit"></i></button> <button id="deletebtn" type="button" class="btn btn-danger"> <i class="glyphicon glyphicon-trash" ></i></button> </td></tr>')
+                    
+                    setTimeout(function(){
+                        $("input").val('');
+                    },100)
+                     setTimeout(function(){
+                        $("#status").html('');
+                        $('#formUpdate').fadeOut();
+                    },2000)
+                     setTimeout(function(){
+                        $("#formSave").fadeIn();
+                    },2500)
+                    
+
+            });
+        }
+        // delete data from table of database
+        function deleteToTable(id) {
+   
+            db.transaction(function(tx) {
+                tx.executeSql("DELETE FROM tbl01 WHERE tbl_id=?",[id],null, onError)
+            })
+        }
+
+        function getAllData(){
+            db.transaction(function(tx){
+                tx.executeSql("SELECT * FROM tbl01",[],function(tx,result){
+
+                    //var i = "";
+
+                    /*for (i = 0; i < data.length; i++) {
+                         $('table tbody').prepend('<tr><td>'+result.rows[i]["tbl_id"]+'</td><td>'+result.rows[i]["tbl_name"]+'</td><td>'+result.rows[i]["tbl_contact"]+'</td><td> <button type="button" class="btn btn-success"><i class="glyphicon glyphicon-pencil"></i></button> <button type="button" class="btn btn-danger"> <i class="glyphicon glyphicon-trash"></i></button> </td></tr>');
+
+                    }*/
+                 //   result.rows[2]["tbl_name"]; //single fetching
+
+                  $.each(result.rows, function(index){
+                        $('table tbody').append('<tr id="'+result.rows[index]["tbl_id"] +'"><td>'+result.rows[index]["tbl_id"]+'</td><td>'+result.rows[index]["tbl_name"]+'</td><td>'+result.rows[index]["tbl_contact"]+'</td><td> <button id="editbtn" type="button" class="btn btn-success"><i class="glyphicon glyphicon-edit"></i></button> <button id="deletebtn" type="button" class="btn btn-danger "> <i class="glyphicon glyphicon-trash"></i></button> </td></tr>')
+                        setTimeout(function(){
+                        $('table').addClass('show');
+                        $('#myTable').dataTable();
+                         },100)
+                    })
+
+
+
+                });
+            })
+        }
+        function getID(){
+        	db.transaction(function(tx){
+        		tx.executeSql("SELECT tbl_id FROM tbl01 ORDER BY tbl_id DESC",[],function(tx,result){
+        			var lastID = result.rows[0]["tbl_id"];
+        			
+        			PlusOne = lastID;
+
+        		})
+        	})
+        }
+
+        createTable();
+        //insertToTable(name,contact);
+        //updateToTable();
+        //deleteToTable();
+        getID();
+        getAllData();
+    </script>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="css/animate.css">
+    <link rel="stylesheet" type="text/css" href="css/datatables-bootstrap3.css">
+    <link rel="stylesheet" type="text/css" href="css/font-awesome.css">
+    <script type="text/javascript" src="js/jquery1.8.js"></script>
+    <script type="text/javascript" src="js/bootstrap.js"></script>
+    <script type="text/javascript" src="js/datatables.js"></script>
+    <script type="text/javascript" src="js/datatables-bootstrap3.js"></script>
+	
+
+
+    <script type="text/javascript">
+    	$(document).ready(function(){
+
+
+          
+            $('#formUpdate').hide();
+    		$('#formSave').submit(function(event){
+    			event.preventDefault();
+    			var name = $("input[name='name']").val();
+    			var contact = $("input[name='contact']").val();
+    			
+				
+				insertToTable(name,contact);
+    		
+    		});
+
+            $('#myTable').on('click','#deletebtn', function(){
+                var id = $(this).parent().parent().attr('id');
+                //alert(id);
+                deleteToTable(id);
+                $(this).parent().parent().fadeOut();
+            })
+
+            $('#myTable').on('click','#editbtn', function(){
+                var id = $(this).parent().parent().attr('id');
+                idup = $(this).parent().parent().attr('id');
+                $(this).parent().parent().fadeOut();
+                //alert(id);
+                db.transaction(function(tx){
+                tx.executeSql("SELECT * FROM tbl01 WHERE tbl_id=?",[id],function(tx,result){
+                
+                  
+                $('input[name="nameup"]').val(result.rows[0]["tbl_name"]);
+                $('input[name="contactup"]').val(result.rows[0]["tbl_contact"]);
+
+                    $('#formSave').fadeOut();
+                setTimeout(function(){
+                    $('#formUpdate').fadeIn();
+                }, 400)
+
+                });
+            });
+        });
+            $('#formUpdate').submit(function(event){
+                event.preventDefault();
+                var name = $('input[name="nameup"]').val();
+                var contact = $('input[name="contactup"]').val();
+
+                updateToTable(name,contact,idup);
+            })
+           $('#btnback').click(function(event){
+                event.preventDefault();
+                $('#formUpdate').fadeOut();
+                  setTimeout(function(){
+                    $('#formSave').fadeIn();
+                }, 400)
+
+            })
+
+
+
+
+    	});
+    </script>
+
+<style type="text/css">
+    body{
+        padding: 50px 50px
+    }
+    table{
+        display: none;
+    }
+    table.show{
+        display: block;
+    }
+    table thead tr th.ty{
+        width: 50%;
+    }
+    table thead tr th.tyy{
+        width: 30%;
+    }
+    table thead tr th.tyyy{
+        width: 20%;
+    }
+    .wrap{
+        padding: 20px;
+    }
+    .formsmall{
+        padding: ;
+    }
+    .formsmally{
+        display: none;
+    }
+    .formsmally.lyly{
+        display: block;
+    }
+    tr.tttt{
+        display: none;
+    }
+    .formss{
+        height: 300px;
+        width: 100%;
+    }
+</style>
+</head>
+<body>
+    <div class="formss">
+    <div id="status"></div>
+
+	<form id="formSave" action="" method="POST" class="formsmall"><br>
+	<label>Name:</label>
+	<input type="text" class="form-control" name="name" required>
+	<label>Contact:</label>
+	<input type="number" class="form-control" name="contact" required><br>
+
+	<button type="submit" class="btn btn-block btn-primary" name="submit"> Submit</button>
+	</form>
+    
+    <form id="formUpdate" action="" method="POST" class="formsmall"><br>
+    <label>Name:</label>
+    <input type="text" class="form-control" name="nameup" required>
+    <label>Contact:</label>
+    <input type="number" class="form-control" name="contactup" required><br>
+
+    <button type="submit" class="btn btn-block btn-success" name="update"> Update</button> 
+    <button id="btnback" type="button" class="btn btn-block btn-primary"> Back </button>  
+    </form>
+</div>
+
+	
+	<div class="wrap">
+    <table id="myTable" class="table table-bordered tt">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th class="ty">Name</th>
+				<th class="tyy">Contact</th>
+				<th class="tyyy">Action</th>
+			</tr>
+		</thead>
+		<tbody>
+			
+		</tbody>
+	</table>
+    </div>
+
+    <a href="index.html" class="btn btn-block btn-default"> TOP </a>
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+      </div>
+      <div class="modal-body">
+      <form id="myfrm" action="" method="POST" class="jumbotron animated FadeIn mod">
+        <div id="status"></div>
+        <label>Name:</label>
+        <input type="text" class="form-control" name="name" required>
+        <label>Age:</label>
+        <input type="number" class="form-control" name="age" required><br>
+        <div class="pull-right">
+        <button type="sumbit" class="btn btn-primary"><i class="glyphicon glyphicon-circle-arrow-down"></i> Save</button>
+        </div>
+    </form>
+      </div>
+      <div class="modal-footer">
+       &copy by June 16 2017 in europe
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
